@@ -38,6 +38,9 @@ errores = []
 global variables
 variables = {}
 
+global etiquetas
+etiquetas = {}
+
 global lista_rutas
 lista_rutas = []
 
@@ -186,19 +189,21 @@ def verificar_sintaxis(instrucciones_archivo):
         elif(palabra[0] == "divida"):
             funcion_error_divida_modulo(palabra)  
         elif(palabra[0] == "potencia"):
-            funcion_error(palabra) 
+            funcion_error_potencia(palabra)
         elif(palabra[0] == "modulo"):
             funcion_error_divida_modulo(palabra)  
         elif(palabra[0] == "concatene"):
-            funcion_error_concatene(palabra)   
+            funcion_error_concatene_extraiga(palabra)   
         elif(palabra[0] == "elimine"):
             funcion_error(palabra)  
         elif(palabra[0] == "extraiga"):
-            funcion_error(palabra) 
+            funcion_error_concatene_extraiga(palabra)
         elif(palabra[0] == "Y"):
-            funcion_error_y_o(palabra)  
+            funcion_error_y_o_no(palabra)  
         elif(palabra[0] == "O"):
-            funcion_error_y_o(palabra)   
+            funcion_error_y_o_no(palabra)
+        elif(palabra[0] == "NO"):
+            funcion_error_y_o_no(palabra)
         elif(palabra[0] == "muestre"):
             funcion_error(palabra)  
         elif(palabra[0] == "imprima"):
@@ -208,18 +213,17 @@ def verificar_sintaxis(instrucciones_archivo):
         elif(palabra[0] == "vayasi"):
             funcion_error(palabra) 
         elif(palabra[0] == "etiqueta"):
-            funcion_error(palabra) 
+            funcion_error_etiqueta(palabra)
         elif(palabra[0] == "retorne"):
             funcion_error(palabra)
         else:
             funcion_error_comentario(palabra)    
 
 
-#verficar sintaxis de las variables "lea", "muestre", "imprima"
-
+#verficar sintaxis de las operaciones lea, muestra, imprima, elimine
 def funcion_error(palabra):
     if(len(palabra)>2):
-        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0] + "\n") 
+        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0]) 
     elif(palabra[1] not in variables):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
     print(errores)
@@ -229,18 +233,6 @@ def funcion_error_comentario(palabra):
     comentario = ['//', ' ']
     if(palabra[0] in comentario):
         errores.append("Error, no es una operación valida " + palabra[1])
-
-#funcion para calcular valores negativos
-def numerosNegativos(palabra):
-	esNegativo=True
-	i=0
-	while(i<len(palabra)):
-		if(i==0 and palabra[i]!="-"):
-			esNegativo=False
-		elif(i>0 and palabra[i].isalpha()):
-			esNegativo=False
-		i=i+1
-	return esNegativo
 
 #error nueva
 def funcion_error_nueva(palabra):
@@ -265,30 +257,16 @@ def funcion_error_nueva(palabra):
         funcion_variable_nombre_valido(palabra)
         print("")
     elif(palabra[2] not in tipos_datos):
-        errores.append("Error, el tipo de dato especificado no ha sido declarado " +  palabra[2])
+        errores.append("Error, el tipo de dato especificado " + +  palabra[2] + " no ha sido declarado" )
         print("")
 
 #verifica que el nombre no sea una operacion
 def funcion_variable_nombre_valido(palabra):
     palabras_operaciones = ["cargue", "almacene","nueva", "lea", "sume", "reste", "multiplique", "divida", "potencia", "modulo", "concatene", "elimine", "extraiga", "Y", "O", "muestre", "vaya", "vayasi", "etiqueta", "retorne"]
     if(palabra[1] in palabras_operaciones):
-        errores.append("Error, el nombre de la variable no es válido " + palabra[1] )
+        errores.append("Error, el nombre de la variable " + palabra[1] +" no es válido"  )
     else:
         variables[palabra[1]] = { 'tipo': palabra[2], 'valor': palabra[3] }
-
-#error y_o
-def funcion_error_y_o(palabra):
-    if(len(palabra)>4):
-        errores.append("Error, se estan utilizando mas de 4 operandos en la operacion")
-    elif(palabra[1] not in variables):
-        errores.append("Error, la variable no ha sido asignada, la variable es" + palabra[1])
-
-#error concatene
-def funcion_error_concatene(palabra):
-    if(len(palabra)>2):
-        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
-    elif((palabra[1].isalpha())==False):
-        errores.append("Error, el operando no es alfanumerico "+ palabra[0])
 
 #validan los errores de las funciones cargue, almacene, multiplique, sume, reste
 def funcion_error_cargue_almacene_multiplique_sume_reste(palabra):
@@ -304,10 +282,54 @@ def funcion_error_cargue_almacene_multiplique_sume_reste(palabra):
 def funcion_error_divida_modulo(palabra):
     if(len(palabra)>2):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[1] not in variables):
+        errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
     elif((variables[palabra[1]]['tipo'] == "L") or (variables[palabra[1]]['tipo'] == "C")):
         errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
     elif(variables[palabra[1]]['valor'] == "0"):
         errores.append("Error, la operacion "+ palabra[0] + " no permite dividir entre " + variables[palabra[1]]['valor'] )
+
+#valida error de la potencia
+def funcion_error_potencia(palabra):
+    if(len(palabra)>2):
+        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[1] not in variables):
+        errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
+    elif((variables[palabra[1]]['tipo'] == "L") or (variables[palabra[1]]['tipo'] == "C")):
+        errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
+    elif((variables[palabra[1]]['valor'].isdigit()==False) or not(variables[palabra[1]]['valor'] <= 0)):
+        errores.append("Error, la operacion "+ palabra[0] + " no permite elevar a una portencia " + variables[palabra[1]]['valor'] )
+
+#error concatene
+def funcion_error_concatene_extraiga(palabra):
+    if(len(palabra)>2):
+        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[1] not in variables):
+        errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
+    elif((variables[palabra[1]]['tipo'] != "C")):
+        errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
+    elif((palabra[1].isalpha())==False):
+        errores.append("Error, el operando no es alfanumerico "+ palabra[0])
+
+#error y_o
+def funcion_error_y_o_no(palabra):
+    if(len(palabra)>4):
+        errores.append("Error, se estan utilizando mas de 4 operandos en la operacion " + palabra[0])
+    elif(palabra[1] not in variables):
+        errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
+    elif((variables[palabra[1]]['tipo'] != "L")):
+        errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
+    
+#error concatene
+def funcion_error_etiqueta(palabra):
+    if(len(palabra)>3):
+        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[1] not in etiquetas):
+        errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
+    elif((variables[palabra[1]]['tipo'] != "I")):
+        errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
+    elif((palabra[1].isdigit())==False):
+        errores.append("Error, el operando no es alfanumerico "+ palabra[0])
 
 
 ventana_principal.mainloop()

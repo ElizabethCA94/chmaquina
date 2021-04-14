@@ -1,0 +1,34 @@
+
+memoria_diccionario = [
+  {
+    tipo; acumulador.
+    valor: Null,
+  },
+  {
+    tipo: 'SO',
+  },
+  {
+    tipo: 'SO',
+  },
+  {
+    tipo: 'SO',
+  },
+  {
+    tipo: 'palabra',
+    valor: 'nueva nombreVar apre asd'
+  },
+  {
+    tipo: 'variable',
+    valor: 1
+  },
+]
+
+memoria = 100
+kerel = 5
+memoriaPrincipal = [
+  'accumukador',
+  'so',
+  'so',
+  'so',
+  'nueva variable'
+]

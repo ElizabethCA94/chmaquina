@@ -26,7 +26,7 @@ global memoria_principal
 memoria_principal = [100]
 
 global kernel 
-kernel=6*z+9
+kernel=10*z+9
 
 global memoria
 memoria=100
@@ -209,13 +209,13 @@ def verificar_sintaxis(instrucciones_archivo):
         elif(palabra[0] == "imprima"):
             funcion_error(palabra)   
         elif(palabra[0] == "vaya"):
-            funcion_error(palabra) 
+            funcion_error_vaya(palabra) 
         elif(palabra[0] == "vayasi"):
-            funcion_error(palabra) 
+            funcion_error_vaya_si(palabra)
         elif(palabra[0] == "etiqueta"):
             funcion_error_etiqueta(palabra)
         elif(palabra[0] == "retorne"):
-            funcion_error(palabra)
+            funcion_error_retorne(palabra)
         else:
             funcion_error_comentario(palabra)    
 
@@ -240,28 +240,21 @@ def funcion_error_nueva(palabra):
     tipos_datos = ["C", "I", "R", "L"]
     if(len(palabra)>4):
         errores.append("Error, se estan utilizando mas de 4 operandos en la operacion "+ palabra[0])
-        print("")
     elif((palabra[2]=="I") and (palabra[3].isdigit()==False)):
         errores.append("Error, el valor de inicializacion "  + palabra[3] + " no es correcto, en el tipo de dato " + palabra[2])
-        print("")
     elif((palabra[2]=="L") and not(palabra[3] == "1" or palabra[3] == "0")):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2])
-        print("")
     elif((palabra[2]=="C") and (palabra[3].isalpha()==False)):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2])
-        print("")
     elif((palabra[2]=="R") and (palabra[3].isdecimal()==False)):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2]) 
-        print("")
     elif(palabra[1] not in variables):
-        funcion_variable_nombre_valido(palabra)
-        print("")
+        funcion_variable_nombre_valido_variable(palabra)
     elif(palabra[2] not in tipos_datos):
         errores.append("Error, el tipo de dato especificado " + +  palabra[2] + " no ha sido declarado" )
-        print("")
 
 #verifica que el nombre no sea una operacion
-def funcion_variable_nombre_valido(palabra):
+def funcion_variable_nombre_valido_variable(palabra):
     palabras_operaciones = ["cargue", "almacene","nueva", "lea", "sume", "reste", "multiplique", "divida", "potencia", "modulo", "concatene", "elimine", "extraiga", "Y", "O", "muestre", "vaya", "vayasi", "etiqueta", "retorne"]
     if(palabra[1] in palabras_operaciones):
         errores.append("Error, el nombre de la variable " + palabra[1] +" no es válido"  )
@@ -320,17 +313,51 @@ def funcion_error_y_o_no(palabra):
     elif((variables[palabra[1]]['tipo'] != "L")):
         errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
     
-#error concatene
+#error etiqueta
 def funcion_error_etiqueta(palabra):
     if(len(palabra)>3):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[2].isdigit()==False):
+        errores.append("Error, el valor " + palabra[2] + " no es válido para la operación " + palabra[0]  )
     elif(palabra[1] not in etiquetas):
-        errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
-    elif((variables[palabra[1]]['tipo'] != "I")):
-        errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
-    elif((palabra[1].isdigit())==False):
-        errores.append("Error, el operando no es alfanumerico "+ palabra[0])
+        funcion_variable_nombre_valido_etiqueta(palabra)
 
+    #verifica que el nombre no sea una operacion
+def funcion_variable_nombre_valido_etiqueta(palabra):
+    palabras_operaciones = ["cargue", "almacene","nueva", "lea", "sume", "reste", "multiplique", "divida", "potencia", "modulo", "concatene", "elimine", "extraiga", "Y", "O", "muestre", "vaya", "vayasi", "etiqueta", "retorne"]
+    if(palabra[1] in palabras_operaciones):
+        errores.append("Error, el nombre de la de etiqueta " + palabra[1] +" no es válido"  )
+    else:
+        etiquetas[palabra[1]] = { 'valor': palabra[2] }
+
+#error_retorne
+def funcion_error_retorne(palabra):
+    if(len(palabra)>2):
+        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[1].isdigit()==False):
+        errores.append("Error, el valor " + palabra[1] +" no es válido para la operación " + palabra[0])
+
+#error_vaya
+def funcion_error_vaya(palabra):
+    if(len(palabra)>2):
+        errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
+    elif(palabra[1] not in etiquetas):
+        errores.append("Error, la etiqueta " + palabra[1] + " no ha sido asignada")
+    elif(etiquetas[palabra[1]]['valor'].isdigit()==False):
+        errores.append("Error, el valor " + etiqueta[palabra[1]]['valor']  + " no es válido para la operación " + palabra[0]  )
+
+#error_vaya_si
+def funcion_error_vaya_si(palabra):
+    if(len(palabra)>3):
+        errores.append("Error, se estan utilizando mas de 3 operandos en la operacion "+ palabra[0])
+    elif(palabra[1] not in etiquetas):
+        errores.append("Error, la etiqueta " + palabra[1] + " no ha sido asignada")
+    elif(palabra[2] not in etiquetas):
+        errores.append("Error, la etiqueta " + palabra[2] + " no ha sido asignada")
+    elif(etiquetas[palabra[1]]['valor'].isdigit()==False):
+        errores.append("Error, el valor " + etiqueta[palabra[1]]['valor']  + " no es válido para la operación " + palabra[0]  )
+    elif(etiquetas[palabra[2]]['valor'].isdigit()==False):
+        errores.append("Error, el valor " + etiqueta[palabra[2]]['valor']  + " no es válido para la operación " + palabra[0]  )
 
 ventana_principal.mainloop()
 

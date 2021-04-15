@@ -6,15 +6,11 @@ from tkinter import filedialog
 #Python Imaging Library (PIL) es una librería gratuita que permite la edición de imágenes directamente desde Python. Soporta una variedad de formatos, incluídos los más utilizados como GIF, JPEG y PNG. Una gran parte del código está escrito en C
 from PIL import Image, ImageTk
 from tkinter import messagebox 
-import memoria_kernel
 
-#root de la app
+#ventana 1 ***********************************************
 ventana = Tk()
-ventana.title("Datos memoria y kernel")
-#ventana.config(bg="white")
+ventana.title("DATOS MEMORIA Y KERNEL")
 ventana.geometry("500x200")
-
-
 
 global z
 z = 1 #ultimo digito de la cedula 1053835141 
@@ -23,7 +19,7 @@ global instrucciones_archivo
 instrucciones_archivo = []
 
 global memoria_principal
-memoria_principal = [100]
+memoria_principal = []
 
 global kernel 
 kernel=10*z+9
@@ -41,29 +37,23 @@ variables = {}
 global etiquetas
 etiquetas = {}
 
-global lista_rutas
-lista_rutas = []
-
-
 #inserta el sistema operativo en la memoria principal 
 i = 0 
 def insertar_kernel(memoria_principal, kernel):
     global i
-    if i < 1:# borra un nuevo kernel
+    if i < 1:
         i += 1
-        memoria_principal.append("ACOMULADOR")
+        #añade dentro de la memoria princial los datos, como la memoria principal se crea como un array de diccionarios, esto permite que se asgine un tipo y un valor a cada asignacion  
+        memoria_principal.append({ 'tipo': 'acumulador',  'valor': 0})
         for i in range(1, int(kernel)+1):
-            memoria_principal.append("SISTEMA OPERATIVO")
-        #print(memoria_principal)
+            memoria_principal.append({'tipo': 'SO', 'valor': 'CH maquina'})
 
-#verifica si al establecer el kernel hay espacio o no para cambiarlo por ese valor
+#verifica el tamaño del kernel y de la memoria
 def verificar_memoria_kernel(memoria, kernel):
-    print(memoria)
     if (int(memoria.isalpha())==True or not(memoria) or int(kernel.isalpha())==True or not(kernel)): #comprueba si el dato ingresado es un digito o esta vacio el campo que se debe ingresar
         messagebox.askokcancel(message="Datos incorrectos, el dato ingresado es obligatorio y debe ser un digito")
     elif (int(kernel) > 0 and int(memoria) > 0 and int(memoria) <= 9999 and int(kernel) < int(memoria)):
         insertar_kernel(memoria_principal, kernel)
-        memoria_kernel.insertar_memoria_y_kernel(memoria, kernel)
         msgbox = messagebox.askquestion(message="Datos correctos!!")
         if msgbox == 'yes':
             ventana.destroy()
@@ -77,7 +67,7 @@ Label(text="Ingresa los tamaños de la memoria y el kernel").grid(row=1, column=
 #creamos input de memoria
 Label(text="Memoria").grid(row=2, column=2, sticky='nw')
 entrada_memoria = StringVar()
-entrada_memoria.set(100)
+entrada_memoria.set(memoria)
 entradaM = Entry(ventana, textvariable=entrada_memoria)
 entradaM.grid(row=2, column=3)
 boton_memoria_kernel = Button(ventana, text="Validar Memoria y Kernel", command=lambda: verificar_memoria_kernel((entrada_memoria.get()),(entrada_kernel.get()))).grid(row=4, column=2)
@@ -89,12 +79,12 @@ entrada_kernel.set(kernel) #10*z+9   z=1
 entradaK = Entry(ventana, textvariable=entrada_kernel)
 entradaK.grid(row=3, column=3)
 
-
 #carga ventana 1
 ventana.mainloop()
 
-#ventana 2
+#ventana 2 *****************************************************
 ventana_principal = Tk()
+ventana_principal.title("CH MAQUINA")
 ventana_principal.geometry("3800x3000")
 
 #realizamos el menu de opciones
@@ -102,10 +92,10 @@ menubar = Menu(ventana_principal)
 filemenu = Menu(menubar, tearoff=0)
 filemenu.add_command(label="Abrir", command=lambda: abrir_archivo())
 menubar.add_cascade(label="Archivo", menu=filemenu)
-menubar.add_command(label="Ejecute", command=lambda: verificar_sintaxis(instrucciones_archivo))
-menubar.add_cascade(label="Muestre memoria")
+menubar.add_command(label="Ejecute", command=lambda: al_ejecutar(instrucciones_archivo))
+menubar.add_command(label="Muestre memoria", command=lambda: mostrar_memoria_principal_en_pantalla())
 menubar.add_cascade(label="Pausa")
-menubar.add_cascade(label="Paso a paso")
+menubar.add_command(label="Paso a paso", command=lambda: paso_a_paso())
 menubar.add_cascade(label="Salir")
 ventana_principal.configure(menu=menubar)
 
@@ -115,43 +105,29 @@ entrada_acomulador = IntVar()
 entradaA = Entry(ventana_principal, textvariable=entrada_acomulador)
 entradaA.grid(row=3, column=1)
 
-#carga de instrucciones de los archivos
+#tabla que muestra las instrucciones de los archivos que se van a ejecutar
 treeview_archivos = ttk.Treeview(ventana_principal, height=10, columns=2)
 scrollbar = ttk.Scrollbar(ventana_principal, orient = "vertical", command=treeview_archivos.yview )
 scrollbar.grid(row=6, column=1, sticky="nse")
 treeview_archivos.configure(yscrollcommand=scrollbar.set)
-treeview_archivos.grid(row=6, column=1, sticky='nsew')
-    
-
-#caja de texto para las variables
-texto_variables = Text(ventana_principal,width=20, height=20)
-texto_variables.grid(row=6, column=2)
+treeview_archivos.grid(row=6, column=1, sticky='nsew')  
 
 #imagen del computador
 computer_image = ImageTk.PhotoImage(Image.open("./img/computadora.png"))
 computer_image_label = Label(ventana_principal, image=computer_image)
 computer_image_label.grid(row=1, column=3, padx=10, pady=10)
-boton_kernel_usuario = Button(ventana_principal, text="Modo Usuario").grid(row=2, column=3)
+btn_text = StringVar()
+modo = Button(ventana_principal, textvariable=btn_text).grid(row=2, column=3)
+btn_text.set("Modo Kernel")
 
-#mostrar lo del pc
-carga_datos_pantalla = Listbox(ventana_principal, width=20, height=20)
-scroll = Scrollbar(ventana_principal, orient = VERTICAL)
+#tabla que muestra la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
+treeview_memoria_principal = ttk.Treeview(ventana_principal, height=10, columns=2)
+scrollbar = ttk.Scrollbar(ventana_principal, orient = "vertical", command=treeview_memoria_principal.yview )
+scrollbar.grid(row=6, column=4, sticky="nse")
+treeview_memoria_principal.configure(yscrollcommand=scrollbar.set)
+treeview_memoria_principal.grid(row=6, column=4, sticky='nsew')
 
-#Creo un menu desplegable para establecer modo kernel o modo usuario
-opciones=["kernel","usuario"]#Estas seran las opciones
-var=StringVar()#es la variable que se encontrara como primera opcion
-var.set(opciones[0])
-
-#mostrar instrucciones paso a paso
-treeview_archivos_paso_a_paso = ttk.Treeview(ventana_principal, columns=2, height=10)
-
-scrollbar = ttk.Scrollbar(ventana_principal, orient=VERTICAL, command=treeview_archivos_paso_a_paso.yview)
-scrollbar.grid(row=6, column=4, sticky="ns", padx="7")
-
-treeview_archivos_paso_a_paso.configure(yscrollcommand=scrollbar.set)
-treeview_archivos_paso_a_paso.grid(row=6, column=4, sticky="nsew")
-
-#metodo para cargar los archivos en la caja de texto con scroll
+#metodo para cargar los archivos en la tabla que muestra las instrucciones de los archivos que se van a ejecutar
 def abrir_archivo():
     global instrucciones_archivo
     archivo_abierto=filedialog.askopenfilename(initialdir="/Documents/ch-maquina/programs",
@@ -164,7 +140,45 @@ def abrir_archivo():
         for i in range(0, len(instrucciones_archivo)):
             treeview_archivos.insert("" , 'end', text="00" + str(i+1), values= (instrucciones_archivo[i],))
 
-#verificar sintaxis
+#metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
+def al_ejecutar(instrucciones_archivo):
+    global errores
+    verificar_sintaxis(instrucciones_archivo)
+    if(len(errores) == 0)
+        agregar_instrucciones_en_memoria_principal(instrucciones_archivo)
+        msgbox = messagebox.askquestion(message="No hay errores, puede ejecutar!!")
+    else:
+        ventana_errores = Tk()
+        ventana_errores.title("VENTANA DE ERRORES")
+        ventana_errores.geometry("500x200")
+        Label(ventana_errores, text="Hay errores, no se puede ejecutar").grid(row=1, column=1)
+        #tabla que muestra las instrucciones de los archivos que se van a ejecutar
+        treeview_errores = ttk.Treeview(ventana_errores, height=10, columns=6)
+        scrollbar = ttk.Scrollbar(ventana_errores, orient = "vertical", command=treeview_errores.yview )
+        scrollbar.grid(row=2, column=1, sticky="nse")
+        treeview_errores.configure(yscrollcommand=scrollbar.set)
+        treeview_errores.grid(row=2, column=1, padx=10, sticky='nsew')
+        for i in range(0, len(errores)):
+            treeview_errores.insert("" , 'end', text="00" + str(i+1), values= (errores[i],))
+
+#metodo para agregar las instrucciones del .ch en la memoria principal 
+def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
+    #print(memoria_principal)
+    for index, instruccion in enumerate(instrucciones_archivo):
+        memoria_principal.append({'tipo': 'instruccion', 'valor': instrucciones_archivo[index]})
+
+#metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
+def mostrar_memoria_principal_en_pantalla():
+    global memoria_principal
+    print(memoria_principal)
+    for i in range(0, len(memoria_principal)):
+        treeview_memoria_principal.insert("" , 'end', text="00" + str(i+1), values= (memoria_principal[i]['valor'],))
+
+#metodo para cambiar el modo al ejecutar paso a paso
+def paso_a_paso():
+    btn_text.set("Modo Usuario")
+
+#metodo que permite verificar sintaxis
 def verificar_sintaxis(instrucciones_archivo):
     archivo = instrucciones_archivo
     palabra = []
@@ -207,13 +221,13 @@ def verificar_sintaxis(instrucciones_archivo):
         elif(palabra[0] == "muestre"):
             funcion_error(palabra)  
         elif(palabra[0] == "imprima"):
-            funcion_error(palabra)   
+            funcion_error(palabra)
+        elif(palabra[0] == "etiqueta"):
+            funcion_error_etiqueta(palabra)   
         elif(palabra[0] == "vaya"):
             funcion_error_vaya(palabra) 
         elif(palabra[0] == "vayasi"):
             funcion_error_vaya_si(palabra)
-        elif(palabra[0] == "etiqueta"):
-            funcion_error_etiqueta(palabra)
         elif(palabra[0] == "retorne"):
             funcion_error_retorne(palabra)
         else:
@@ -228,13 +242,12 @@ def funcion_error(palabra):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
     print(errores)
 
-#error comentarios o operaciones no declaradas
+#verficar sintaxis al momento de que la operacion sea un comentarios o operaciones no declaradas
 def funcion_error_comentario(palabra):
-    comentario = ['//', ' ']
-    if(palabra[0] in comentario):
-        errores.append("Error, no es una operación valida " + palabra[1])
+    if(palabra[0] == '//'):
+        del(palabra[0])
 
-#error nueva
+#verficar sintaxis al momento de que la operacion sea nueva
 def funcion_error_nueva(palabra):
     global variables
     tipos_datos = ["C", "I", "R", "L"]
@@ -253,7 +266,7 @@ def funcion_error_nueva(palabra):
     elif(palabra[2] not in tipos_datos):
         errores.append("Error, el tipo de dato especificado " + +  palabra[2] + " no ha sido declarado" )
 
-#verifica que el nombre no sea una operacion
+#verifica que el nombre de la variable no sea una operacion
 def funcion_variable_nombre_valido_variable(palabra):
     palabras_operaciones = ["cargue", "almacene","nueva", "lea", "sume", "reste", "multiplique", "divida", "potencia", "modulo", "concatene", "elimine", "extraiga", "Y", "O", "muestre", "vaya", "vayasi", "etiqueta", "retorne"]
     if(palabra[1] in palabras_operaciones):
@@ -282,7 +295,7 @@ def funcion_error_divida_modulo(palabra):
     elif(variables[palabra[1]]['valor'] == "0"):
         errores.append("Error, la operacion "+ palabra[0] + " no permite dividir entre " + variables[palabra[1]]['valor'] )
 
-#valida error de la potencia
+#valida error de operacion potencia
 def funcion_error_potencia(palabra):
     if(len(palabra)>2):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
@@ -293,7 +306,7 @@ def funcion_error_potencia(palabra):
     elif((variables[palabra[1]]['valor'].isdigit()==False) or not(variables[palabra[1]]['valor'] <= 0)):
         errores.append("Error, la operacion "+ palabra[0] + " no permite elevar a una portencia " + variables[palabra[1]]['valor'] )
 
-#error concatene
+#verficar sintaxis en la operacion concatene
 def funcion_error_concatene_extraiga(palabra):
     if(len(palabra)>2):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
@@ -304,7 +317,7 @@ def funcion_error_concatene_extraiga(palabra):
     elif((palabra[1].isalpha())==False):
         errores.append("Error, el operando no es alfanumerico "+ palabra[0])
 
-#error y_o
+#verficar sintaxis en la operacion concatene error Y O NOT
 def funcion_error_y_o_no(palabra):
     if(len(palabra)>4):
         errores.append("Error, se estan utilizando mas de 4 operandos en la operacion " + palabra[0])
@@ -313,16 +326,16 @@ def funcion_error_y_o_no(palabra):
     elif((variables[palabra[1]]['tipo'] != "L")):
         errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
     
-#error etiqueta
+#verficar sintaxis en la operacion etiqueta
 def funcion_error_etiqueta(palabra):
     if(len(palabra)>3):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
-    elif(palabra[2].isdigit()==False):
-        errores.append("Error, el valor " + palabra[2] + " no es válido para la operación " + palabra[0]  )
     elif(palabra[1] not in etiquetas):
         funcion_variable_nombre_valido_etiqueta(palabra)
+    elif(palabra[2].isdigit()==False):
+        errores.append("Error, el valor " + palabra[2] + " no es válido para la operación " + palabra[0]  )
 
-    #verifica que el nombre no sea una operacion
+#verifica que el nombre de la etiqueta no sea una operacion
 def funcion_variable_nombre_valido_etiqueta(palabra):
     palabras_operaciones = ["cargue", "almacene","nueva", "lea", "sume", "reste", "multiplique", "divida", "potencia", "modulo", "concatene", "elimine", "extraiga", "Y", "O", "muestre", "vaya", "vayasi", "etiqueta", "retorne"]
     if(palabra[1] in palabras_operaciones):
@@ -330,34 +343,24 @@ def funcion_variable_nombre_valido_etiqueta(palabra):
     else:
         etiquetas[palabra[1]] = { 'valor': palabra[2] }
 
-#error_retorne
+#verficar sintaxis en la operacion retorne
 def funcion_error_retorne(palabra):
     if(len(palabra)>2):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
     elif(palabra[1].isdigit()==False):
         errores.append("Error, el valor " + palabra[1] +" no es válido para la operación " + palabra[0])
 
-#error_vaya
+#verficar sintaxis en la operacion vaya
 def funcion_error_vaya(palabra):
     if(len(palabra)>2):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0])
-    elif(palabra[1] not in etiquetas):
-        errores.append("Error, la etiqueta " + palabra[1] + " no ha sido asignada")
-    elif(etiquetas[palabra[1]]['valor'].isdigit()==False):
-        errores.append("Error, el valor " + etiqueta[palabra[1]]['valor']  + " no es válido para la operación " + palabra[0]  )
 
-#error_vaya_si
+#verficar sintaxis en la operacion vaya_si
 def funcion_error_vaya_si(palabra):
     if(len(palabra)>3):
         errores.append("Error, se estan utilizando mas de 3 operandos en la operacion "+ palabra[0])
-    elif(palabra[1] not in etiquetas):
-        errores.append("Error, la etiqueta " + palabra[1] + " no ha sido asignada")
-    elif(palabra[2] not in etiquetas):
-        errores.append("Error, la etiqueta " + palabra[2] + " no ha sido asignada")
-    elif(etiquetas[palabra[1]]['valor'].isdigit()==False):
-        errores.append("Error, el valor " + etiqueta[palabra[1]]['valor']  + " no es válido para la operación " + palabra[0]  )
-    elif(etiquetas[palabra[2]]['valor'].isdigit()==False):
-        errores.append("Error, el valor " + etiqueta[palabra[2]]['valor']  + " no es válido para la operación " + palabra[0]  )
+
+
 
 ventana_principal.mainloop()
 

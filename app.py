@@ -144,9 +144,10 @@ def abrir_archivo():
 def al_ejecutar(instrucciones_archivo):
     global errores
     verificar_sintaxis(instrucciones_archivo)
-    if(len(errores) == 0)
-        agregar_instrucciones_en_memoria_principal(instrucciones_archivo)
+    if(len(errores) == 0):
         msgbox = messagebox.askquestion(message="No hay errores, puede ejecutar!!")
+        agregar_instrucciones_en_memoria_principal(instrucciones_archivo)
+        mostrar_memoria_principal_en_pantalla()
     else:
         ventana_errores = Tk()
         ventana_errores.title("VENTANA DE ERRORES")
@@ -165,7 +166,10 @@ def al_ejecutar(instrucciones_archivo):
 def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
     #print(memoria_principal)
     for index, instruccion in enumerate(instrucciones_archivo):
-        memoria_principal.append({'tipo': 'instruccion', 'valor': instrucciones_archivo[index]})
+        valor = instrucciones_archivo[index]
+        if(valor.find('//') != 0):
+            #memoria_principal.append({'tipo': 'comentario', 'valor' : '' })
+            memoria_principal.append({'tipo': 'instruccion', 'valor': valor})
 
 #metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
 def mostrar_memoria_principal_en_pantalla():
@@ -230,8 +234,7 @@ def verificar_sintaxis(instrucciones_archivo):
             funcion_error_vaya_si(palabra)
         elif(palabra[0] == "retorne"):
             funcion_error_retorne(palabra)
-        else:
-            funcion_error_comentario(palabra)    
+
 
 
 #verficar sintaxis de las operaciones lea, muestra, imprima, elimine
@@ -243,9 +246,7 @@ def funcion_error(palabra):
     print(errores)
 
 #verficar sintaxis al momento de que la operacion sea un comentarios o operaciones no declaradas
-def funcion_error_comentario(palabra):
-    if(palabra[0] == '//'):
-        del(palabra[0])
+
 
 #verficar sintaxis al momento de que la operacion sea nueva
 def funcion_error_nueva(palabra):

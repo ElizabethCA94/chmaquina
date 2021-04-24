@@ -139,6 +139,7 @@ def abrir_archivo():
         archivo.close()
         for i in range(0, len(instrucciones_archivo)):
             treeview_archivos.insert("" , 'end', text="00" + str(i+1), values= (instrucciones_archivo[i],))
+            agregar_instrucciones_en_variables(instrucciones_archivo)
 
 #metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
 def al_ejecutar(instrucciones_archivo):
@@ -174,10 +175,36 @@ def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
 #metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
 def mostrar_memoria_principal_en_pantalla():
     global memoria_principal
-    print(memoria_principal)
+    #print(memoria_principal)
     for i in range(0, len(memoria_principal)):
         treeview_memoria_principal.insert("" , 'end', text="00" + str(i+1), values= (memoria_principal[i]['valor'],))
 
+#metodo para agregar las variables del .ch 
+def agregar_instrucciones_en_variables(instrucciones_archivo):
+    #print(memoria_principal)
+    valor =  {}
+    instrucciones = []
+    #indice = 1 
+    for index, instruccion in enumerate(instrucciones_archivo):
+        for instruccion_interna in instrucciones_archivo:
+            instruccion_interna = instruccion_interna.strip("\n") 
+            instrucciones = instruccion_interna.split()
+            print("el valor es --->>>",valor)
+            print(instruccion_interna)
+            print(instrucciones)
+            valor[instrucciones[1]] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
+        variables[index] = {'tipo': 'instruccion', 'valor': instrucciones_archivo[index]}
+        #nombre_variables = []
+        #nombre_variables[index] = {'tipo': 'instruccion', 'valor': variables[index]}
+    print(variables)
+
+#metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
+'''def mostrar_memoria_principal_en_pantalla():
+    global memoria_principal
+    print(memoria_principal)
+    for i in range(0, len(memoria_principal)):
+        treeview_memoria_principal.insert("" , 'end', text="00" + str(i+1), values= (memoria_principal[i]['valor'],))
+'''
 #metodo para cambiar el modo al ejecutar paso a paso
 def paso_a_paso():
     btn_text.set("Modo Usuario")

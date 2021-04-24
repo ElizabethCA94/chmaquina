@@ -127,6 +127,25 @@ scrollbar.grid(row=6, column=4, sticky="nse")
 treeview_memoria_principal.configure(yscrollcommand=scrollbar.set)
 treeview_memoria_principal.grid(row=6, column=4, sticky='nsew')
 
+#tabla que muestra las variables en la tabla de variables 
+treeview_variables = ttk.Treeview(ventana_principal, height=10, columns=2)
+treeview_variables.heading("#0", text = "POS")
+treeview_variables.heading("#1", text = "Variables")
+scrollbar = ttk.Scrollbar(ventana_principal, orient = "vertical", command=treeview_variables.yview )
+scrollbar.grid(row=1, column=1, sticky="nse")
+treeview_variables.configure(yscrollcommand=scrollbar.set)
+treeview_variables.grid(row=1, column=1, sticky='nsew')
+
+#tabla que muestra las etiquetas en la tabla de etiquetas 
+treeview_etiquetas = ttk.Treeview(ventana_principal, height=10, columns=2)
+treeview_etiquetas.heading("#0", text = "POS")
+treeview_etiquetas.heading("#1", text = "Etiquetas")
+scrollbar = ttk.Scrollbar(ventana_principal, orient = "vertical", command=treeview_etiquetas.yview )
+scrollbar.grid(row=1, column=4, sticky="nse")
+treeview_etiquetas.configure(yscrollcommand=scrollbar.set)
+treeview_etiquetas.grid(row=1, column=4, sticky='nsew')
+
+
 #metodo para cargar los archivos en la tabla que muestra las instrucciones de los archivos que se van a ejecutar
 def abrir_archivo():
     global instrucciones_archivo
@@ -136,15 +155,26 @@ def abrir_archivo():
     if archivo_abierto!='':
         archivo=open(archivo_abierto, "r", )
         instrucciones_archivo = archivo.readlines()#Conversión del archivo de texto en una lista por renglones
-        archivo.close()
-        for i in range(0, len(instrucciones_archivo)):
-            treeview_archivos.insert("" , 'end', text="00" + str(i+1), values= (instrucciones_archivo[i],))
-            agregar_instrucciones_en_variables(instrucciones_archivo)
+        archivo.close()       
+        contador = 0
+        for index, instruccion in enumerate(instrucciones_archivo):
+            instruccion = instruccion.strip("\n") 
+            valor = instruccion.split(" ")
+            if(valor[0].find('//') != 0):
+                valor[0] = valor[0].lower()
+                instruccion_formateada = " ".join(valor)
+                treeview_archivos.insert("" , 'end', text="00" + str(contador), values= (instruccion_formateada,))
+            contador += 1 
+        agregar_variables(instrucciones_archivo)
+        mostrar_variables_en_pantalla(instrucciones_archivo)
+        agregar_etiquetas(instrucciones_archivo)
+        mostrar_etiquetas_en_pantalla()
 
 #metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
 def al_ejecutar(instrucciones_archivo):
     global errores
     verificar_sintaxis(instrucciones_archivo)
+    #print(len(errores))
     if(len(errores) == 0):
         msgbox = messagebox.askquestion(message="No hay errores, puede ejecutar!!")
         agregar_instrucciones_en_memoria_principal(instrucciones_archivo)
@@ -165,12 +195,13 @@ def al_ejecutar(instrucciones_archivo):
 
 #metodo para agregar las instrucciones del .ch en la memoria principal 
 def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
-    #print(memoria_principal)
     for index, instruccion in enumerate(instrucciones_archivo):
-        valor = instrucciones_archivo[index]
-        if(valor.find('//') != 0):
-            #memoria_principal.append({'tipo': 'comentario', 'valor' : '' })
-            memoria_principal.append({'tipo': 'instruccion', 'valor': valor})
+        instruccion = instruccion.strip("\n") 
+        valor = instruccion.split(" ")
+        if(valor[0].find('//') != 0):
+            valor[0] = valor[0].lower()
+            instruccion_formateada = " ".join(valor)
+            memoria_principal.append({'tipo': 'instruccion', 'valor': instruccion_formateada})
 
 #metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
 def mostrar_memoria_principal_en_pantalla():
@@ -180,31 +211,39 @@ def mostrar_memoria_principal_en_pantalla():
         treeview_memoria_principal.insert("" , 'end', text="00" + str(i+1), values= (memoria_principal[i]['valor'],))
 
 #metodo para agregar las variables del .ch 
-def agregar_instrucciones_en_variables(instrucciones_archivo):
-    #print(memoria_principal)
-    valor =  {}
-    instrucciones = []
-    #indice = 1 
-    for index, instruccion in enumerate(instrucciones_archivo):
-        for instruccion_interna in instrucciones_archivo:
-            instruccion_interna = instruccion_interna.strip("\n") 
-            instrucciones = instruccion_interna.split()
-            print("el valor es --->>>",valor)
-            print(instruccion_interna)
-            print(instrucciones)
-            valor[instrucciones[1]] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
-        variables[index] = {'tipo': 'instruccion', 'valor': instrucciones_archivo[index]}
-        #nombre_variables = []
-        #nombre_variables[index] = {'tipo': 'instruccion', 'valor': variables[index]}
-    print(variables)
+def agregar_variables(instrucciones_archivo):
+    for instruccion_interna in instrucciones_archivo:
+        instruccion_interna = instruccion_interna.strip("\n") 
+        instrucciones = instruccion_interna.split(" ")
+        if(instrucciones[0]=="nueva"):
+            variables[instrucciones[1]] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
 
-#metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
-'''def mostrar_memoria_principal_en_pantalla():
-    global memoria_principal
-    print(memoria_principal)
-    for i in range(0, len(memoria_principal)):
-        treeview_memoria_principal.insert("" , 'end', text="00" + str(i+1), values= (memoria_principal[i]['valor'],))
-'''
+#metodo para mostrar en pantalla las variables del archivo .ch
+def mostrar_variables_en_pantalla(instrucciones_archivo):
+    global variables
+    print(variables)
+    for index, nombre_variable in enumerate(len(instrucciones_archivo),variables):
+        valor = variables[nombre_variable]
+        treeview_variables.insert("" , 'end', text="00" + str(index+1), values= (nombre_variable, valor,))
+
+#metodo para agregar las variables del .ch 
+def agregar_etiquetas(instrucciones_archivo):
+    global etiquetas
+    for instruccion_interna in instrucciones_archivo:
+        instruccion_interna = instruccion_interna.strip("\n") 
+        instrucciones = instruccion_interna.split(" ")
+        if(instrucciones[0]=="etiqueta"):
+            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
+    print(etiquetas)
+
+#metodo para mostrar en pantalla las variables del archivo .ch
+def mostrar_etiquetas_en_pantalla():
+    global etiquetas
+    print(etiquetas)
+    for index, nombre_etiqueta in enumerate(etiquetas):
+        valor = etiquetas[nombre_etiqueta]
+        treeview_etiquetas.insert("" , 'end', text="00" + str(index+1), values= (nombre_etiqueta, valor,))
+
 #metodo para cambiar el modo al ejecutar paso a paso
 def paso_a_paso():
     btn_text.set("Modo Usuario")
@@ -214,9 +253,10 @@ def verificar_sintaxis(instrucciones_archivo):
     archivo = instrucciones_archivo
     palabra = []
     for instruccion in archivo:
-        print(instruccion)
+        #print(instruccion)
         instruccion = instruccion.strip("\n") 
         palabra = instruccion.split(" ")
+        palabra[0] = palabra[0].lower()
         if(palabra[0] == "cargue"):
             funcion_error_cargue_almacene_multiplique_sume_reste(palabra)
         elif(palabra[0] == "almacene"):
@@ -270,12 +310,10 @@ def funcion_error(palabra):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0]) 
     elif(palabra[1] not in variables):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
-    print(errores)
-
-#verficar sintaxis al momento de que la operacion sea un comentarios o operaciones no declaradas
+    #print(errores)
 
 
-#verficar sintaxis al momento de que la operacion sea nueva
+#verficar sintaxis al momento de que la operacion sea crear una nueva variable
 def funcion_error_nueva(palabra):
     global variables
     tipos_datos = ["C", "I", "R", "L"]
@@ -310,7 +348,7 @@ def funcion_error_cargue_almacene_multiplique_sume_reste(palabra):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
     elif((variables[palabra[1]]['tipo'] == "L") or (variables[palabra[1]]['tipo'] == "C")):
         errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
-    print(errores)
+    #print(errores)
 
 #validan los errores de las funciones divida, modulo
 def funcion_error_divida_modulo(palabra):

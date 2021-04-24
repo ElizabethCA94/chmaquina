@@ -1,5 +1,5 @@
 // Programa para calcular el factorial de 5
-nueva unidad I 1
+Nueva unidad I 1
 nueva m I 5
 nueva respuesta I 1
 nueva intermedia I 0

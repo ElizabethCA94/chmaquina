@@ -1,3 +1,28 @@
+variable = 
+  {
+    tipo : variable
+    valor : {
+      tipo : I
+      valor : 5
+    }
+  }
+
+
+variables = {
+    unidad : {
+      tipo : I,
+      valor : 1
+    }
+    m: {
+      tipo : I,
+      valor : 5
+    },
+    respuesta : {
+      tipo: I,
+      valor : 1
+    }
+
+  }
 
 memoria_diccionario = [
   {

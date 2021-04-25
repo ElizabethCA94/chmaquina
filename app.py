@@ -39,21 +39,30 @@ etiquetas = {}
 
 #inserta el sistema operativo en la memoria principal 
 i = 0 
-def insertar_kernel(memoria_principal, kernel):
+def insertar_kernel(memoria, kernel):
+    global memoria_principal
     global i
     if i < 1:
         i += 1
         #añade dentro de la memoria princial los datos, como la memoria principal se crea como un array de diccionarios, esto permite que se asgine un tipo y un valor a cada asignacion  
         memoria_principal.append({ 'tipo': 'acumulador',  'valor': 0})
-        for i in range(1, int(kernel)+1):
+        for i in range(1, kernel+1):
             memoria_principal.append({'tipo': 'SO', 'valor': 'CH maquina'})
+        for i in range(kernel+1, memoria):
+            memoria_principal.append({'tipo': 'vacio', 'valor': ''})
 
 #verifica el tamaño del kernel y de la memoria
-def verificar_memoria_kernel(memoria, kernel):
+def verificar_memoria_kernel(memoria_usuario, kernel_usuario):
+    global memoria
+    global kernel
+    memoria = memoria_usuario
+    kernel = kernel_usuario
     if (int(memoria.isalpha())==True or not(memoria) or int(kernel.isalpha())==True or not(kernel)): #comprueba si el dato ingresado es un digito o esta vacio el campo que se debe ingresar
         messagebox.askokcancel(message="Datos incorrectos, el dato ingresado es obligatorio y debe ser un digito")
     elif (int(kernel) > 0 and int(memoria) > 0 and int(memoria) <= 9999 and int(kernel) < int(memoria)):
-        insertar_kernel(memoria_principal, kernel)
+        memoria = int(memoria)
+        kernel = int(kernel)
+        insertar_kernel(memoria, kernel)
         msgbox = messagebox.askquestion(message="Datos correctos!!")
         if msgbox == 'yes':
             ventana.destroy()
@@ -156,7 +165,7 @@ def abrir_archivo():
         archivo=open(archivo_abierto, "r", )
         instrucciones_archivo = archivo.readlines()#Conversión del archivo de texto en una lista por renglones
         archivo.close()       
-        contador = 0
+        contador = kernel+1
         for index, instruccion in enumerate(instrucciones_archivo):
             instruccion = instruccion.strip("\n") 
             valor = instruccion.split(" ")
@@ -164,21 +173,26 @@ def abrir_archivo():
                 valor[0] = valor[0].lower()
                 instruccion_formateada = " ".join(valor)
                 treeview_archivos.insert("" , 'end', text="00" + str(contador), values= (instruccion_formateada,))
-            contador += 1 
+                contador += 1 
+        almacena_ch_en_memoria_principal(instrucciones_archivo)
         agregar_variables(instrucciones_archivo)
+        agregar_variables_en_memoria_principal()
+        mostrar_memoria_principal_en_pantalla()
         mostrar_variables_en_pantalla(instrucciones_archivo)
         agregar_etiquetas(instrucciones_archivo)
         mostrar_etiquetas_en_pantalla()
 
 #metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
 def al_ejecutar(instrucciones_archivo):
+    print("hola")
+
+def almacena_ch_en_memoria_principal(instrucciones_archivo):
     global errores
     verificar_sintaxis(instrucciones_archivo)
     #print(len(errores))
     if(len(errores) == 0):
         msgbox = messagebox.askquestion(message="No hay errores, puede ejecutar!!")
         agregar_instrucciones_en_memoria_principal(instrucciones_archivo)
-        mostrar_memoria_principal_en_pantalla()
     else:
         ventana_errores = Tk()
         ventana_errores.title("VENTANA DE ERRORES")
@@ -195,36 +209,67 @@ def al_ejecutar(instrucciones_archivo):
 
 #metodo para agregar las instrucciones del .ch en la memoria principal 
 def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
+    global kernel
+    contador = kernel+1
     for index, instruccion in enumerate(instrucciones_archivo):
         instruccion = instruccion.strip("\n") 
         valor = instruccion.split(" ")
         if(valor[0].find('//') != 0):
             valor[0] = valor[0].lower()
             instruccion_formateada = " ".join(valor)
-            memoria_principal.append({'tipo': 'instruccion', 'valor': instruccion_formateada})
+            #print("EL indice es ", index)
+            memoria_principal[contador] = {'tipo': 'instruccion', 'valor': instruccion_formateada}
+            contador += 1
 
 #metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
 def mostrar_memoria_principal_en_pantalla():
     global memoria_principal
     #print(memoria_principal)
+    treeview_memoria_principal.delete(*treeview_memoria_principal.get_children())
     for i in range(0, len(memoria_principal)):
-        treeview_memoria_principal.insert("" , 'end', text="00" + str(i+1), values= (memoria_principal[i]['valor'],))
+        treeview_memoria_principal.insert("" , 'end', text="00" + str(i), values= (memoria_principal[i]['valor'],))
+
+#metodo para agregar diccionario de variables en el array de memoria principal
+def agregar_variables_en_memoria_principal():
+    global variables
+    global memoria_principal
+    posicion = posicion_memoria_principal()
+
+    for llave in variables:
+        memoria_principal[posicion] = {'tipo':'variable', 'valor': variables[llave]['valor'], 'nombre': llave}
+        posicion += 1
+
+#verificar en que posicion retorna la primer posicion vacia de memoria principal
+def posicion_memoria_principal():
+    global memoria_principal
+    posicion = 0
+    for instruccion in memoria_principal:
+        #print(instruccion)
+        if(instruccion['tipo']!='vacio'):
+            posicion += 1
+        else:
+            return posicion
 
 #metodo para agregar las variables del .ch 
 def agregar_variables(instrucciones_archivo):
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
-        if(instrucciones[0]=="nueva"):
+        if(instrucciones[0].lower()=="nueva"):
             variables[instrucciones[1]] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_variables_en_pantalla(instrucciones_archivo):
     global variables
-    print(variables)
-    for index, nombre_variable in enumerate(len(instrucciones_archivo),variables):
-        valor = variables[nombre_variable]
-        treeview_variables.insert("" , 'end', text="00" + str(index+1), values= (nombre_variable, valor,))
+    global memoria_principal
+    #print(variables)
+    '''print(posicion_memoria_principal())
+    for index, nombre_variable in enumerate(variables):
+        valor = variables[nombre_variable]'''
+    for index, pedasito_de_memoria in enumerate(memoria_principal):
+        if pedasito_de_memoria['tipo'] == 'variable':
+            nombre_variable = pedasito_de_memoria['nombre']
+            treeview_variables.insert("" , 'end', text="00" + str(index), values= (nombre_variable,))
 
 #metodo para agregar las variables del .ch 
 def agregar_etiquetas(instrucciones_archivo):
@@ -234,12 +279,12 @@ def agregar_etiquetas(instrucciones_archivo):
         instrucciones = instruccion_interna.split(" ")
         if(instrucciones[0]=="etiqueta"):
             etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
-    print(etiquetas)
+    #print(etiquetas)
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():
     global etiquetas
-    print(etiquetas)
+    #print(etiquetas)
     for index, nombre_etiqueta in enumerate(etiquetas):
         valor = etiquetas[nombre_etiqueta]
         treeview_etiquetas.insert("" , 'end', text="00" + str(index+1), values= (nombre_etiqueta, valor,))

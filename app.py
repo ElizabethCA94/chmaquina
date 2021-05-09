@@ -225,7 +225,7 @@ def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
 def mostrar_memoria_principal_en_pantalla():
     global memoria_principal
     #print(memoria_principal)
-    treeview_memoria_principal.delete(*treeview_memoria_principal.get_children())
+    #treeview_memoria_principal.delete(*treeview_memoria_principal.get_children())
     for i in range(0, len(memoria_principal)):
         treeview_memoria_principal.insert("" , 'end', text="00" + str(i), values= (memoria_principal[i]['valor'],))
 
@@ -256,6 +256,15 @@ def agregar_variables(instrucciones_archivo):
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
         if(instrucciones[0].lower()=="nueva"):
+            if(len(instrucciones)==3):
+                if(instrucciones[2]=="I"):
+                    instrucciones.append("0")
+                elif(instrucciones[2]=="L"):
+                    instrucciones.append("0")
+                elif(instrucciones[2]=="R"):
+                    instrucciones.append("0")
+                elif(instrucciones[2]=="C"):
+                    instrucciones.append(" ")
             variables[instrucciones[1]] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
 
 #metodo para mostrar en pantalla las variables del archivo .ch
@@ -267,6 +276,7 @@ def mostrar_variables_en_pantalla(instrucciones_archivo):
     for index, nombre_variable in enumerate(variables):
         valor = variables[nombre_variable]'''
     for index, pedasito_de_memoria in enumerate(memoria_principal):
+        print(pedasito_de_memoria)
         if pedasito_de_memoria['tipo'] == 'variable':
             nombre_variable = pedasito_de_memoria['nombre']
             treeview_variables.insert("" , 'end', text="00" + str(index), values= (nombre_variable,))
@@ -274,12 +284,18 @@ def mostrar_variables_en_pantalla(instrucciones_archivo):
 #metodo para agregar las variables del .ch 
 def agregar_etiquetas(instrucciones_archivo):
     global etiquetas
-    for instruccion_interna in instrucciones_archivo:
+    global memoria_principal
+    '''for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
         if(instrucciones[0]=="etiqueta"):
-            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
-    #print(etiquetas)
+            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }'''
+    posicion = posicion_memoria_principal()
+    for llave in variables:
+        memoria_principal[posicion] = {'tipo':'etiqueta', 'valor': etiquetas[llave]['valor'], 'nombre': llave}
+        posicion += 1
+
+
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():
@@ -364,7 +380,18 @@ def funcion_error_nueva(palabra):
     tipos_datos = ["C", "I", "R", "L"]
     if(len(palabra)>4):
         errores.append("Error, se estan utilizando mas de 4 operandos en la operacion "+ palabra[0])
-    elif((palabra[2]=="I") and (palabra[3].isdigit()==False)):
+
+    if(len(palabra)==3):
+        if(palabra[2]=="I"):
+            palabra.append("0")
+        elif(palabra[2]=="L"):
+            palabra.append("0")
+        elif(palabra[2]=="R"):
+            palabra.append("0")
+        elif(palabra[2]=="C"):
+            palabra.append(" ")
+
+    if((palabra[2]=="I") and (palabra[3].isdigit()==False)):
         errores.append("Error, el valor de inicializacion "  + palabra[3] + " no es correcto, en el tipo de dato " + palabra[2])
     elif((palabra[2]=="L") and not(palabra[3] == "1" or palabra[3] == "0")):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2])

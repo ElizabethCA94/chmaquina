@@ -199,7 +199,7 @@ def almacena_ch_en_memoria_principal(instrucciones_archivo):
         ventana_errores.geometry("500x200")
         Label(ventana_errores, text="Hay errores, no se puede ejecutar").grid(row=1, column=1)
         #tabla que muestra las instrucciones de los archivos que se van a ejecutar
-        treeview_errores = ttk.Treeview(ventana_errores, height=10, columns=6)
+        treeview_errores = ttk.Treeview(ventana_errores, height=10, columns=10)
         scrollbar = ttk.Scrollbar(ventana_errores, orient = "vertical", command=treeview_errores.yview )
         scrollbar.grid(row=2, column=1, sticky="nse")
         treeview_errores.configure(yscrollcommand=scrollbar.set)
@@ -271,12 +271,7 @@ def agregar_variables(instrucciones_archivo):
 def mostrar_variables_en_pantalla(instrucciones_archivo):
     global variables
     global memoria_principal
-    #print(variables)
-    '''print(posicion_memoria_principal())
-    for index, nombre_variable in enumerate(variables):
-        valor = variables[nombre_variable]'''
     for index, pedasito_de_memoria in enumerate(memoria_principal):
-        print(pedasito_de_memoria)
         if pedasito_de_memoria['tipo'] == 'variable':
             nombre_variable = pedasito_de_memoria['nombre']
             treeview_variables.insert("" , 'end', text="00" + str(index), values= (nombre_variable,))
@@ -285,17 +280,11 @@ def mostrar_variables_en_pantalla(instrucciones_archivo):
 def agregar_etiquetas(instrucciones_archivo):
     global etiquetas
     global memoria_principal
-    '''for instruccion_interna in instrucciones_archivo:
+    for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
         if(instrucciones[0]=="etiqueta"):
-            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }'''
-    posicion = posicion_memoria_principal()
-    for llave in variables:
-        memoria_principal[posicion] = {'tipo':'etiqueta', 'valor': etiquetas[llave]['valor'], 'nombre': llave}
-        posicion += 1
-
-
+            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():
@@ -371,7 +360,7 @@ def funcion_error(palabra):
         errores.append("Error, se estan utilizando mas de 2 operandos en la operacion "+ palabra[0]) 
     elif(palabra[1] not in variables):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
-    #print(errores)
+    
 
 
 #verficar sintaxis al momento de que la operacion sea crear una nueva variable
@@ -395,7 +384,7 @@ def funcion_error_nueva(palabra):
         errores.append("Error, el valor de inicializacion "  + palabra[3] + " no es correcto, en el tipo de dato " + palabra[2])
     elif((palabra[2]=="L") and not(palabra[3] == "1" or palabra[3] == "0")):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2])
-    elif((palabra[2]=="C") and (palabra[3].isalpha()==False)):
+    elif((palabra[2]=="C") and not(palabra[3].isalpha()==True or palabra[3].isascii()==True)):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2])
     elif((palabra[2]=="R") and (palabra[3].isdecimal()==False)):
         errores.append("Error en el el valor de inicializacion  " + palabra[3]  + " no es correcto, en el tipo de dato " + palabra[2]) 
@@ -403,7 +392,7 @@ def funcion_error_nueva(palabra):
         funcion_variable_nombre_valido_variable(palabra)
     elif(palabra[2] not in tipos_datos):
         errores.append("Error, el tipo de dato especificado " + +  palabra[2] + " no ha sido declarado" )
-
+    print(errores)
 #verifica que el nombre de la variable no sea una operacion
 def funcion_variable_nombre_valido_variable(palabra):
     palabras_operaciones = ["cargue", "almacene","nueva", "lea", "sume", "reste", "multiplique", "divida", "potencia", "modulo", "concatene", "elimine", "extraiga", "Y", "O", "muestre", "vaya", "vayasi", "etiqueta", "retorne"]
@@ -411,7 +400,7 @@ def funcion_variable_nombre_valido_variable(palabra):
         errores.append("Error, el nombre de la variable " + palabra[1] +" no es válido"  )
     else:
         variables[palabra[1]] = { 'tipo': palabra[2], 'valor': palabra[3] }
-
+    print(errores)
 #validan los errores de las funciones cargue, almacene, multiplique, sume, reste
 def funcion_error_cargue_almacene_multiplique_sume_reste(palabra):
     if(len(palabra)>2):
@@ -420,7 +409,7 @@ def funcion_error_cargue_almacene_multiplique_sume_reste(palabra):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
     elif((variables[palabra[1]]['tipo'] == "L") or (variables[palabra[1]]['tipo'] == "C")):
         errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
-    #print(errores)
+    print(errores)
 
 #validan los errores de las funciones divida, modulo
 def funcion_error_divida_modulo(palabra):
@@ -498,7 +487,7 @@ def funcion_error_vaya_si(palabra):
     if(len(palabra)>3):
         errores.append("Error, se estan utilizando mas de 3 operandos en la operacion "+ palabra[0])
 
-
+    
 
 ventana_principal.mainloop()
 

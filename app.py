@@ -285,6 +285,9 @@ def agregar_etiquetas(instrucciones_archivo):
         instrucciones = instruccion_interna.split(" ")
         if(instrucciones[0]=="etiqueta"):
             etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
+    for posicion, instruccion in enumerate(memoria_principal):
+        if(instruccion['tipo']!='vacio'):
+            print(posicion, instrucciones)
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():

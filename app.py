@@ -169,6 +169,7 @@ def abrir_archivo():
         for index, instruccion in enumerate(instrucciones_archivo):
             instruccion = instruccion.strip("\n") 
             valor = instruccion.split(" ")
+            #eliminamos los comentarios
             if(valor[0].find('//') != 0):
                 valor[0] = valor[0].lower()
                 instruccion_formateada = " ".join(valor)
@@ -214,6 +215,7 @@ def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
     for index, instruccion in enumerate(instrucciones_archivo):
         instruccion = instruccion.strip("\n") 
         valor = instruccion.split(" ")
+        #eliminamos los comentarios
         if(valor[0].find('//') != 0):
             valor[0] = valor[0].lower()
             instruccion_formateada = " ".join(valor)
@@ -234,7 +236,6 @@ def agregar_variables_en_memoria_principal():
     global variables
     global memoria_principal
     posicion = posicion_memoria_principal()
-
     for llave in variables:
         memoria_principal[posicion] = {'tipo':'variable', 'valor': variables[llave]['valor'], 'nombre': llave}
         posicion += 1
@@ -255,6 +256,7 @@ def agregar_variables(instrucciones_archivo):
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
+        #agregamos el valor por defecto de cada uno de los tipos de variables
         if(instrucciones[0].lower()=="nueva"):
             if(len(instrucciones)==3):
                 if(instrucciones[2]=="I"):
@@ -280,6 +282,7 @@ def mostrar_variables_en_pantalla(instrucciones_archivo):
 def agregar_etiquetas(instrucciones_archivo):
     global etiquetas
     global memoria_principal
+    posicion = posicion_memoria_principal()
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
@@ -287,7 +290,9 @@ def agregar_etiquetas(instrucciones_archivo):
             etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
     for posicion, instruccion in enumerate(memoria_principal):
         if(instruccion['tipo']!='vacio'):
-            print(posicion, instrucciones)
+            print(posicion, instruccion)
+            posicion += 1
+
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():

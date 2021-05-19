@@ -283,15 +283,21 @@ def agregar_etiquetas(instrucciones_archivo):
     global etiquetas
     global memoria_principal
     posicion = posicion_memoria_principal()
+
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
         if(instrucciones[0]=="etiqueta"):
             etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
-    for posicion, instruccion in enumerate(memoria_principal):
-        if(instruccion['tipo']!='vacio'):
-            print(posicion, instruccion)
-            posicion += 1
+            posicion_actual = etiquetas[instrucciones[1]]  
+            for instruccion_memoria in memoria_principal:            
+                for llave in etiquetas:
+                    instruccion_memoria[posicion] = {'tipo':'etiquetas', 'valor': etiquetas[llave]['valor'], 'nombre': llave}
+                    #if instruccion_memoria['tipo']!='vacio' and instruccion_memoria['tipo'] == 'etiqueta':
+                    #   nombre_etiqueta = instruccion_memoria['nombre']
+                    #  print(nombre_etiqueta)
+                    print(instruccion_memoria['valor'])
+                    posicion +=1 
 
 
 #metodo para mostrar en pantalla las variables del archivo .ch

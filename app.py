@@ -279,51 +279,40 @@ def mostrar_variables_en_pantalla(instrucciones_archivo):
             nombre_variable = pedasito_de_memoria['nombre']
             treeview_variables.insert("" , 'end', text="00" + str(index), values= (nombre_variable,))
 
-#metodo para agregar las variables del .ch 
+#metodo para agregar las etiquetas del .ch 
 def agregar_etiquetas(instrucciones_archivo):
     global etiquetas
     global memoria_principal
-    posicion = posicion_memoria_principal()
-    posicion = 0
-    instruccion_memoria = []
 
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
         #agregamos el valor de las etiquetas
         if(instrucciones[0].lower()=="etiqueta"):
-            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2]}
-    print(etiquetas)
+            etiquetas[instrucciones[1]] = {'valor': int(instrucciones[2])}
 
+#metodo para encontrar la posicion la cual se le va a asignar a las etiquetas con relacion a las instrucciones del ch
 def obtener_posicion_memoria_disponible():
     global memoria_principal
     index = 0
     while(memoria_principal[index]['tipo']=='acumulador' or memoria_principal[index]['tipo']=='SO'):
         index += 1
-
-    print(index)
-    
-
-'''        if(instrucciones[0]=="etiqueta"):
-            etiquetas[instrucciones[1]] = { 'valor': instrucciones[2] }
-            posicion_actual = etiquetas[instrucciones[1]]  
-            print(posicion_actual)     
-            for llave in etiquetas:
-                memoria_principal[posicion] = {'tipo':'etiqueta', 'valor': etiquetas[llave]['valor'], 'nombre': llave}
-                #if instruccion_memoria['tipo']!='vacio' and instruccion_memoria['tipo'] == 'etiqueta':
-                #   nombre_etiqueta = instruccion_memoria['nombre']
-                #  print(nombre_etiqueta)
-                print(memoria_principal)
-                posicion +=1 '''
-
+    return index
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():
     global etiquetas
-    #print(etiquetas)
+    indice_memoria = obtener_posicion_memoria_disponible()
+    #valor_etiqueta = agregar_etiquetas(instrucciones_archivo)
+    print(etiquetas)
+    #for nombre_etiqueta in etiquetas:
     for index, nombre_etiqueta in enumerate(etiquetas):
-        valor = etiquetas[nombre_etiqueta]
-        treeview_etiquetas.insert("" , 'end', text="00" + str(index+1), values= (nombre_etiqueta, valor,))
+        total = indice_memoria + etiquetas[nombre_etiqueta]['valor']
+        print(nombre_etiqueta, index)
+        #index = indice_memoria + sum1
+        #print(valor)
+        #print(index)
+        treeview_etiquetas.insert("" , 'end', text="00" + str(total), values= (nombre_etiqueta,))
 
 #metodo para cambiar el modo al ejecutar paso a paso
 def paso_a_paso():

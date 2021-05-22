@@ -21,8 +21,14 @@ instrucciones_archivo = []
 global memoria_principal
 memoria_principal = []
 
+global instrucciones_ch
+instrucciones_ch = []
+
 global kernel 
 kernel=10*z+9
+
+global cantidad_de_comentarios 
+cantidad_de_comentarios=0
 
 global memoria
 memoria=100
@@ -212,17 +218,25 @@ def almacena_ch_en_memoria_principal(instrucciones_archivo):
 #metodo para agregar las instrucciones del .ch en la memoria principal 
 def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
     global kernel
+    global cantidad_de_comentarios
     contador = kernel+1
     for index, instruccion in enumerate(instrucciones_archivo):
         instruccion = instruccion.strip("\n") 
         valor = instruccion.split(" ")
-        #eliminamos los comentarios
-        if(valor[0].find('//') != 0):
+        
+        if(valor[0].find('//') != 0):#elimina comentario
             valor[0] = valor[0].lower()
             instruccion_formateada = " ".join(valor)
             #print("EL indice es ", index)
             memoria_principal[contador] = {'tipo': 'instruccion', 'valor': instruccion_formateada}
             contador += 1
+
+            instrucciones_ch.append({'tipo': 'instruccion', 'valor': instruccion_formateada})
+            
+        else:
+            instrucciones_ch.append({'tipo': 'comentario'})
+            cantidad_de_comentarios += 1
+
 
 #metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
 def mostrar_memoria_principal_en_pantalla():
@@ -302,13 +316,16 @@ def obtener_posicion_memoria_disponible():
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_etiquetas_en_pantalla():
     global etiquetas
+    global cantidad_de_comentarios
     indice_memoria = obtener_posicion_memoria_disponible()
     #valor_etiqueta = agregar_etiquetas(instrucciones_archivo)
     print(etiquetas)
     #for nombre_etiqueta in etiquetas:
     for index, nombre_etiqueta in enumerate(etiquetas):
-        total = indice_memoria + etiquetas[nombre_etiqueta]['valor']
+        total = (indice_memoria + etiquetas[nombre_etiqueta]['valor']) - cantidad_de_comentarios
         print(nombre_etiqueta, index)
+        if(instrucciones_ch[index]['tipo'] !='comentario'):
+            total = (indice_memoria + etiquetas[nombre_etiqueta]['valor']) - (cantidad_de_comentarios + 1)
         #index = indice_memoria + sum1
         #print(valor)
         #print(index)
@@ -506,8 +523,6 @@ def funcion_error_vaya(palabra):
 def funcion_error_vaya_si(palabra):
     if(len(palabra)>3):
         errores.append("Error, se estan utilizando mas de 3 operandos en la operacion "+ palabra[0])
-
-    
 
 ventana_principal.mainloop()
 

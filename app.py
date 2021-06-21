@@ -189,6 +189,7 @@ def abrir_archivo():
         agregar_etiquetas(instrucciones_archivo)
         mostrar_etiquetas_en_pantalla()
         obtener_posicion_memoria_disponible()
+        cargue(instrucciones_ch)
 
 #metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
 def al_ejecutar(instrucciones_archivo):
@@ -224,15 +225,13 @@ def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
         instruccion = instruccion.strip("\n") 
         valor = instruccion.split(" ")
         
-        if(valor[0].find('//') != 0):#elimina comentario
+        if(valor[0].find('//') != 0):#verifica que no sea un comentario
             valor[0] = valor[0].lower()
-            instruccion_formateada = " ".join(valor)
-            #print("EL indice es ", index)
+            instruccion_formateada = "".join(valor) # une los elementos de la lista y retorna cadenas
+            #array de diccionarios
             memoria_principal[contador] = {'tipo': 'instruccion', 'valor': instruccion_formateada}
             contador += 1
-
             instrucciones_ch.append({'tipo': 'instruccion', 'valor': instruccion_formateada})
-            
         else:
             instrucciones_ch.append({'tipo': 'comentario'})
             cantidad_de_comentarios += 1
@@ -266,7 +265,7 @@ def posicion_memoria_principal():
         else:
             return posicion
 
-#metodo para agregar las variables del .ch 
+#metodo para agregar las variables del .ch y sus valores por defecto
 def agregar_variables(instrucciones_archivo):
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
@@ -299,8 +298,8 @@ def agregar_etiquetas(instrucciones_archivo):
     global memoria_principal
 
     for instruccion_interna in instrucciones_archivo:
-        instruccion_interna = instruccion_interna.strip("\n") 
-        instrucciones = instruccion_interna.split(" ")
+        instruccion_interna = instruccion_interna.strip("\n") #quitar espacios de la cadena al principio y al final
+        instrucciones = instruccion_interna.split(" ") #lista que contiene como elementos la cadena 
         #agregamos el valor de las etiquetas
         if(instrucciones[0].lower()=="etiqueta"):
             etiquetas[instrucciones[1]] = {'valor': int(instrucciones[2])}
@@ -318,14 +317,9 @@ def mostrar_etiquetas_en_pantalla():
     global etiquetas
     global cantidad_de_comentarios
     indice_memoria = obtener_posicion_memoria_disponible()
-    #valor_etiqueta = agregar_etiquetas(instrucciones_archivo)
-    print(etiquetas)
-    #for nombre_etiqueta in etiquetas:
-    for index, nombre_etiqueta in enumerate(etiquetas):
-        total = (indice_memoria + etiquetas[nombre_etiqueta]['valor']) - cantidad_de_comentarios
-        print(nombre_etiqueta, index)
-        if(instrucciones_ch[index]['tipo'] !='comentario'):
-            total = (indice_memoria + etiquetas[nombre_etiqueta]['valor']) - (cantidad_de_comentarios + 1)
+    for nombre_etiqueta in etiquetas:
+        total = (indice_memoria + etiquetas[nombre_etiqueta]['valor']) - cantidad_de_comentarios + 1
+        #print(nombre_etiqueta, index)
         #index = indice_memoria + sum1
         #print(valor)
         #print(index)
@@ -334,6 +328,17 @@ def mostrar_etiquetas_en_pantalla():
 #metodo para cambiar el modo al ejecutar paso a paso
 def paso_a_paso():
     btn_text.set("Modo Usuario")
+
+#metodo cargue
+def cargue(instrucciones_ch):
+    palabra = []
+    for linea in instrucciones_ch:
+        #f(linea['tipo'] == 'instruccion'):
+        print("hola")
+        linea = linea.strip("\n") 
+        palabra = linea.split(" ")
+        palabra[0] = palabra[0].lower()
+        print(palabra) 
 
 #metodo que permite verificar sintaxis
 def verificar_sintaxis(instrucciones_archivo):
@@ -446,7 +451,6 @@ def funcion_error_cargue_almacene_multiplique_sume_reste(palabra):
         errores.append("Error, la variable " + palabra[1] + " no ha sido asignada")
     elif((variables[palabra[1]]['tipo'] == "L") or (variables[palabra[1]]['tipo'] == "C")):
         errores.append("Error, la variable " + palabra[1] + " no se puede ejecutar en la operacion " + palabra[0] + " porque su tipo de dato es " + variables[palabra[1]]['tipo']) 
-    print(errores)
 
 #validan los errores de las funciones divida, modulo
 def funcion_error_divida_modulo(palabra):

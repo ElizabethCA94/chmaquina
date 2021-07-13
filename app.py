@@ -189,7 +189,7 @@ def abrir_archivo():
         agregar_etiquetas(instrucciones_archivo)
         mostrar_etiquetas_en_pantalla()
         obtener_posicion_memoria_disponible()
-        cargue(instrucciones_ch)
+        #cargue(instrucciones_ch)
 
 #metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
 def al_ejecutar(instrucciones_archivo):
@@ -330,15 +330,9 @@ def paso_a_paso():
     btn_text.set("Modo Usuario")
 
 #metodo cargue
-def cargue(instrucciones_ch):
-    palabra = []
-    for linea in instrucciones_ch:
-        #f(linea['tipo'] == 'instruccion'):
-        print("hola")
-        linea = linea.strip("\n") 
-        palabra = linea.split(" ")
-        palabra[0] = palabra[0].lower()
-        print(palabra) 
+def cargue():
+    print('hola')
+    entrada_acomulador.set(variables.values())
 
 #metodo que permite verificar sintaxis
 def verificar_sintaxis(instrucciones_archivo):
@@ -351,6 +345,7 @@ def verificar_sintaxis(instrucciones_archivo):
         palabra[0] = palabra[0].lower()
         if(palabra[0] == "cargue"):
             funcion_error_cargue_almacene_multiplique_sume_reste(palabra)
+            cargue()
         elif(palabra[0] == "almacene"):
             funcion_error_cargue_almacene_multiplique_sume_reste(palabra)
         elif(palabra[0] == "nueva"):

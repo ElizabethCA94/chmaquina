@@ -17,7 +17,7 @@ almacene respuesta
 cargue intermedia
 vayasi ciclo fin
 etiqueta ciclo 11
-etiqueta fin 25
+etiqueta fin 23
 muestre resultado
 muestre respuesta
 imprima resultado

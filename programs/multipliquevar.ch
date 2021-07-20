@@ -6,7 +6,7 @@ lea m
 lea n
 nueva respuesta I 0
 nueva resultado C Resultado=
-nueva intermedia I 0
+nueva intermedia I 5
 cargue n
 // inicia ciclo
 reste unidad

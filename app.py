@@ -12,6 +12,9 @@ ventana = Tk()
 ventana.title("DATOS MEMORIA Y KERNEL")
 ventana.geometry("500x200")
 
+global acumulador
+acumulador = 3
+
 global z
 z = 1 #ultimo digito de la cedula 1053835141 
 
@@ -170,7 +173,7 @@ def abrir_archivo():
     if archivo_abierto!='':
         archivo=open(archivo_abierto, "r", )
         instrucciones_archivo = archivo.readlines()#Conversión del archivo de texto en una lista por renglones
-        archivo.close()       
+        archivo.close()
         contador = kernel+1
         for index, instruccion in enumerate(instrucciones_archivo):
             instruccion = instruccion.strip("\n") 
@@ -267,9 +270,11 @@ def posicion_memoria_principal():
 
 #metodo para agregar las variables del .ch y sus valores por defecto
 def agregar_variables(instrucciones_archivo):
+    global acumulador
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
+        llave = instrucciones[1]
         #agregamos el valor por defecto de cada uno de los tipos de variables
         if(instrucciones[0].lower()=="nueva"):
             if(len(instrucciones)==3):
@@ -281,7 +286,10 @@ def agregar_variables(instrucciones_archivo):
                     instrucciones.append("0")
                 elif(instrucciones[2]=="C"):
                     instrucciones.append(" ")
-            variables[instrucciones[1]] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
+            variables[llave] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
+        if(instrucciones[0].lower()=="cargue"):
+            acumulador = variables[llave]['valor']
+            cargue()
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_variables_en_pantalla(instrucciones_archivo):
@@ -331,8 +339,7 @@ def paso_a_paso():
 
 #metodo cargue
 def cargue():
-    print('hola')
-    entrada_acomulador.set(variables.values())
+    entrada_acomulador.set(acumulador)
 
 #metodo que permite verificar sintaxis
 def verificar_sintaxis(instrucciones_archivo):
@@ -345,7 +352,6 @@ def verificar_sintaxis(instrucciones_archivo):
         palabra[0] = palabra[0].lower()
         if(palabra[0] == "cargue"):
             funcion_error_cargue_almacene_multiplique_sume_reste(palabra)
-            cargue()
         elif(palabra[0] == "almacene"):
             funcion_error_cargue_almacene_multiplique_sume_reste(palabra)
         elif(palabra[0] == "nueva"):

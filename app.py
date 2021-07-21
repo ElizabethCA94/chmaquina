@@ -15,6 +15,12 @@ ventana.geometry("500x200")
 global acumulador
 acumulador = 3
 
+global es_paso_a_paso 
+es_paso_a_paso = False
+
+global es_al_ejecutar
+es_al_ejecutar = False
+
 global z
 z = 1 #ultimo digito de la cedula 1053835141 
 
@@ -110,7 +116,7 @@ menubar = Menu(ventana_principal)
 filemenu = Menu(menubar, tearoff=0)
 filemenu.add_command(label="Abrir", command=lambda: abrir_archivo())
 menubar.add_cascade(label="Archivo", menu=filemenu)
-menubar.add_command(label="Ejecute", command=lambda: al_ejecutar(instrucciones_archivo))
+menubar.add_command(label="Ejecute", command=lambda: al_ejecutar())
 menubar.add_command(label="Muestre memoria", command=lambda: mostrar_memoria_principal_en_pantalla())
 menubar.add_cascade(label="Pausa")
 menubar.add_command(label="Paso a paso", command=lambda: paso_a_paso())
@@ -185,18 +191,14 @@ def abrir_archivo():
                 treeview_archivos.insert("" , 'end', text="00" + str(contador), values= (instruccion_formateada,))
                 contador += 1 
         almacena_ch_en_memoria_principal(instrucciones_archivo)
-        agregar_variables(instrucciones_archivo)
         agregar_variables_en_memoria_principal()
         mostrar_memoria_principal_en_pantalla()
         mostrar_variables_en_pantalla(instrucciones_archivo)
         agregar_etiquetas(instrucciones_archivo)
         mostrar_etiquetas_en_pantalla()
         obtener_posicion_memoria_disponible()
-        #cargue(instrucciones_ch)
+        agregar_variables(instrucciones_archivo)
 
-#metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
-def al_ejecutar(instrucciones_archivo):
-    print("hola")
 
 def almacena_ch_en_memoria_principal(instrucciones_archivo):
     global errores
@@ -224,6 +226,7 @@ def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
     global kernel
     global cantidad_de_comentarios
     contador = kernel+1
+    
     for index, instruccion in enumerate(instrucciones_archivo):
         instruccion = instruccion.strip("\n") 
         valor = instruccion.split(" ")
@@ -239,7 +242,7 @@ def agregar_instrucciones_en_memoria_principal(instrucciones_archivo):
             instrucciones_ch.append({'tipo': 'comentario'})
             cantidad_de_comentarios += 1
 
-
+        
 #metodo para mostrar en pantalla el valor de memoria, estos datos se muestran en la tabla de la memoria principal con el acomulador, el SO y las instrucciones de los archivos 
 def mostrar_memoria_principal_en_pantalla():
     global memoria_principal
@@ -247,6 +250,7 @@ def mostrar_memoria_principal_en_pantalla():
     #treeview_memoria_principal.delete(*treeview_memoria_principal.get_children())
     for i in range(0, len(memoria_principal)):
         treeview_memoria_principal.insert("" , 'end', text="00" + str(i), values= (memoria_principal[i]['valor'],))
+    
 
 #metodo para agregar diccionario de variables en el array de memoria principal
 def agregar_variables_en_memoria_principal():
@@ -268,9 +272,8 @@ def posicion_memoria_principal():
         else:
             return posicion
 
-#metodo para agregar las variables del .ch y sus valores por defecto
+#metodo para agregar las variables del .ch en diccionario de variables y sus valores por defecto
 def agregar_variables(instrucciones_archivo):
-    global acumulador
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
@@ -288,8 +291,16 @@ def agregar_variables(instrucciones_archivo):
                     instrucciones.append(" ")
             variables[llave] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
         if(instrucciones[0].lower()=="cargue"):
-            acumulador = variables[llave]['valor']
+            #print(memoria_principal[0])
+            memoria_principal[0]['valor'] = variables[llave]['valor']
             cargue()
+        es_al_ejecutar = True
+        if(es_al_ejecutar == True):
+            paso_a_paso()
+            
+            msgbox = messagebox.askquestion(message="Desea continuar?")
+
+
 
 #metodo para mostrar en pantalla las variables del archivo .ch
 def mostrar_variables_en_pantalla(instrucciones_archivo):
@@ -327,19 +338,22 @@ def mostrar_etiquetas_en_pantalla():
     indice_memoria = obtener_posicion_memoria_disponible()
     for nombre_etiqueta in etiquetas:
         total = (indice_memoria + etiquetas[nombre_etiqueta]['valor']) - cantidad_de_comentarios + 1
-        #print(nombre_etiqueta, index)
-        #index = indice_memoria + sum1
-        #print(valor)
-        #print(index)
         treeview_etiquetas.insert("" , 'end', text="00" + str(total), values= (nombre_etiqueta,))
 
 #metodo para cambiar el modo al ejecutar paso a paso
 def paso_a_paso():
     btn_text.set("Modo Usuario")
+    Label(ventana_principal, text="Paso a paso").grid(row=0, column=3)
+    es_paso_a_paso = True    
+    
+#metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
+def al_ejecutar():
+    es_al_ejecutar = True
+    
 
 #metodo cargue
 def cargue():
-    entrada_acomulador.set(acumulador)
+    entrada_acomulador.set(memoria_principal[0]['valor'])
 
 #metodo que permite verificar sintaxis
 def verificar_sintaxis(instrucciones_archivo):

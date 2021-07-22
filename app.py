@@ -294,11 +294,11 @@ def agregar_variables(instrucciones_archivo):
             #print(memoria_principal[0])
             memoria_principal[0]['valor'] = variables[llave]['valor']
             cargue()
-        es_al_ejecutar = True
-        if(es_al_ejecutar == True):
-            paso_a_paso()
-            
+        if(es_al_ejecutar == False):
+            paso_a_paso()            
             msgbox = messagebox.askquestion(message="Desea continuar?")
+            if(msgbox=='no'):
+                msgbox.destroy()
 
 
 

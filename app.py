@@ -15,11 +15,8 @@ ventana.geometry("500x200")
 global acumulador
 acumulador = 3
 
-global es_paso_a_paso 
+global es_paso_a_paso
 es_paso_a_paso = False
-
-global es_al_ejecutar
-es_al_ejecutar = False
 
 global z
 z = 1 #ultimo digito de la cedula 1053835141 
@@ -272,6 +269,20 @@ def posicion_memoria_principal():
         else:
             return posicion
 
+def al_ejecutar():
+    for instruccion_interna in instrucciones_archivo:
+        instruccion_interna = instruccion_interna.strip("\n") 
+        instrucciones = instruccion_interna.split(" ")
+        llave = instrucciones[1]
+        if(instrucciones[0].lower()=="cargue"):
+            memoria_principal[0]['valor'] = variables[llave]['valor']
+            cargue()
+        if(es_paso_a_paso == False):
+            paso_a_paso()            
+            msgbox = messagebox.askquestion(message="Desea continuar?")
+            if(msgbox=='no'):
+                msgbox.destroy()
+
 #metodo para agregar las variables del .ch en diccionario de variables y sus valores por defecto
 def agregar_variables(instrucciones_archivo):
     for instruccion_interna in instrucciones_archivo:
@@ -290,15 +301,15 @@ def agregar_variables(instrucciones_archivo):
                 elif(instrucciones[2]=="C"):
                     instrucciones.append(" ")
             variables[llave] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
-        if(instrucciones[0].lower()=="cargue"):
-            #print(memoria_principal[0])
-            memoria_principal[0]['valor'] = variables[llave]['valor']
-            cargue()
-        if(es_al_ejecutar == False):
-            paso_a_paso()            
-            msgbox = messagebox.askquestion(message="Desea continuar?")
-            if(msgbox=='no'):
-                msgbox.destroy()
+        # if(instrucciones[0].lower()=="cargue"):
+        #     #print(memoria_principal[0])
+        #     memoria_principal[0]['valor'] = variables[llave]['valor']
+        #     cargue()
+        # if(es_paso_a_paso == False):
+        #     paso_a_paso()            
+        #     msgbox = messagebox.askquestion(message="Desea continuar?")
+        #     if(msgbox=='no'):
+        #         msgbox.destroy()
 
 
 
@@ -345,11 +356,6 @@ def paso_a_paso():
     btn_text.set("Modo Usuario")
     Label(ventana_principal, text="Paso a paso").grid(row=0, column=3)
     es_paso_a_paso = True    
-    
-#metodo que se realiza al momento de ejecutar muestra si hay errores, sino los hay agrega muestra una nueva ventana con los errores 
-def al_ejecutar():
-    es_al_ejecutar = True
-    
 
 #metodo cargue
 def cargue():

@@ -1,7 +1,7 @@
 // Calcula el producto de dos valores entrados por teclado.
 nueva unidad I 1
-nueva m I 0
-nueva n I 0
+nueva m I 2
+nueva n I 1
 lea m
 lea n
 nueva respuesta I 0

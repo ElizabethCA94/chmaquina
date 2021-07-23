@@ -277,6 +277,9 @@ def al_ejecutar():
         if(instrucciones[0].lower()=="cargue"):
             memoria_principal[0]['valor'] = variables[llave]['valor']
             cargue()
+        if(instrucciones[0].lower()=="almacene"):
+            variables[llave]['valor'] = memoria_principal[0]['valor']
+            almacene()    
         if(es_paso_a_paso == False):
             paso_a_paso()            
             msgbox = messagebox.askquestion(message="Desea continuar?")
@@ -301,16 +304,6 @@ def agregar_variables(instrucciones_archivo):
                 elif(instrucciones[2]=="C"):
                     instrucciones.append(" ")
             variables[llave] = { 'tipo': instrucciones[2], 'valor': instrucciones[3] }
-        # if(instrucciones[0].lower()=="cargue"):
-        #     #print(memoria_principal[0])
-        #     memoria_principal[0]['valor'] = variables[llave]['valor']
-        #     cargue()
-        # if(es_paso_a_paso == False):
-        #     paso_a_paso()            
-        #     msgbox = messagebox.askquestion(message="Desea continuar?")
-        #     if(msgbox=='no'):
-        #         msgbox.destroy()
-
 
 
 #metodo para mostrar en pantalla las variables del archivo .ch
@@ -360,6 +353,14 @@ def paso_a_paso():
 #metodo cargue
 def cargue():
     entrada_acomulador.set(memoria_principal[0]['valor'])
+
+#metodo almacene
+def almacene():
+    for index, pedasito_de_memoria in enumerate(memoria_principal):
+        if pedasito_de_memoria['tipo'] == 'variable':
+            valor = pedasito_de_memoria['valor']
+            print(valor)
+
 
 #metodo que permite verificar sintaxis
 def verificar_sintaxis(instrucciones_archivo):

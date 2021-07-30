@@ -270,18 +270,17 @@ def posicion_memoria_principal():
             return posicion
 
 def al_ejecutar():
+    global memoria_principal
+    global treeview_memoria_principal
     for instruccion_interna in instrucciones_archivo:
         instruccion_interna = instruccion_interna.strip("\n") 
         instrucciones = instruccion_interna.split(" ")
         llave = instrucciones[1]
         if(instrucciones[0].lower()=="cargue"):
             memoria_principal[0]['valor'] = variables[llave]['valor']
+            print(treeview_memoria_principal.get_children())
             cargue()
-        if(instrucciones[0].lower()=="almacene"):
-            variables[llave]['valor'] = memoria_principal[0]['valor']
-            almacene()    
-        if(es_paso_a_paso == False):
-            paso_a_paso()            
+        if(es_paso_a_paso == True):     
             msgbox = messagebox.askquestion(message="Desea continuar?")
             if(msgbox=='no'):
                 msgbox.destroy()
@@ -346,12 +345,14 @@ def mostrar_etiquetas_en_pantalla():
 
 #metodo para cambiar el modo al ejecutar paso a paso
 def paso_a_paso():
+    global es_paso_a_paso
     btn_text.set("Modo Usuario")
     Label(ventana_principal, text="Paso a paso").grid(row=0, column=3)
     es_paso_a_paso = True    
 
 #metodo cargue
 def cargue():
+    #treeview_memoria_principal.insert("" , 'end', text="00" + str(i), values= (memoria_principal[i]['valor'],))
     entrada_acomulador.set(memoria_principal[0]['valor'])
 
 #metodo almacene
@@ -359,7 +360,7 @@ def almacene():
     for index, pedasito_de_memoria in enumerate(memoria_principal):
         if pedasito_de_memoria['tipo'] == 'variable':
             valor = pedasito_de_memoria['valor']
-            print(valor)
+            #print(valor)
 
 
 #metodo que permite verificar sintaxis
